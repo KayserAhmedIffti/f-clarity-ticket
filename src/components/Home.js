@@ -1,41 +1,59 @@
 import { useNavigate } from 'react-router-dom';
-import api from '../api/axios'; // Ensure this is your Axios instance with withCredentials: true
+import api from '../api/axios';
+import Cookies from 'js-cookie';
 
 const Home = ({ setIsAuthenticated }) => {
     const navigate = useNavigate();
 
     const handleLogout = async () => {
         try {
-            // Call the logout endpoint on your Laravel backend
-            const response = await api.post('/logout');
+            console.log('Fetching CSRF cookie...');
+            const csrfResponse = await api.get('http://localhost:8000/sanctum/csrf-cookie');
+            console.log('CSRF Response:', csrfResponse);
+
+            const xsrfToken = Cookies.get('XSRF-TOKEN');
+            const sessionCookie = Cookies.get('laravel_session');
+            if (!xsrfToken) throw new Error('CSRF token not found');
+            console.log('XSRF-TOKEN:', xsrfToken);
+            console.log('laravel_session:', sessionCookie);
+
+            console.log('Sending logout request...');
+            const response = await api.post('/logout', {}, {
+                headers: {
+                    'X-XSRF-TOKEN': xsrfToken,
+                },
+            });
+            console.log('Logout Response:', response.data, 'Status:', response.status);
+
             if (response.status === 200) {
-                // Update authentication state and redirect to login
-                setIsAuthenticated(false);
+                console.log('Logout successful, updating state and navigating...');
+                if (typeof setIsAuthenticated === 'function') {
+                    setIsAuthenticated(false);
+                } else {
+                    console.warn('setIsAuthenticated is not a function');
+                }
                 navigate('/login');
             }
         } catch (err) {
             console.error('Logout error:', err.response ? err.response.data : err.message);
-            // Optionally handle logout failure (e.g., show an error message)
+            console.error('Error Status:', err.response?.status || 'undefined');
         }
     };
 
     return (
         <div className="min-h-screen bg-gray-100">
-            {/* Top Bar */}
-            <nav className="bg-gradient-to-r from-indigo-600 to-purple-600 p-4 shadow-md">
+            <nav className="bg-gradient-to-r from-green-600 to-black-600 p-4 shadow-md">
                 <div className="max-w-7xl mx-auto flex justify-between items-center">
                     <h1 className="text-white text-xl font-bold">ClarityTicket</h1>
                     <button
                         onClick={handleLogout}
-                        className="text-white bg-red-500 hover:bg-red-600 px-4 py-2 rounded-md font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-400"
+                        className="text-white bg-orange-400 hover:bg-red-600 px-4 py-2 rounded-md font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-400"
                     >
                         Logout
                     </button>
                 </div>
             </nav>
-
-            {/* Main Content */}
-            <div className="flex items-center justify-center h-[calc(100vh-64px)]">
+            <div className="flex items-center justify-center h-[calc(100vh-1vh)]">
                 <div className="bg-white p-8 rounded-lg shadow-lg text-center">
                     <h2 className="text-3xl font-extrabold text-gray-900 mb-4">
                         Welcome to the Home Page!

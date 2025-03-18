@@ -1,7 +1,7 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Login from './components/Login';
-import Home from './components/Home';
 import { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Login from './components/Login'; // Adjust path as needed
+import Home from './components/Home';   // Adjust path as needed
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -9,10 +9,19 @@ function App() {
     return (
         <Router>
             <Routes>
-                <Route path="/login" element={<Login setIsAuthenticated={setIsAuthenticated} />} />
+                <Route
+                    path="/login"
+                    element={<Login setIsAuthenticated={setIsAuthenticated} />}
+                />
                 <Route
                     path="/home"
-                    element={isAuthenticated ? <Home /> : <Navigate to="/login" />}
+                    element={
+                        isAuthenticated ? (
+                            <Home setIsAuthenticated={setIsAuthenticated} />
+                        ) : (
+                            <Navigate to="/login" />
+                        )
+                    }
                 />
                 <Route path="/" element={<Navigate to="/login" />} />
             </Routes>
