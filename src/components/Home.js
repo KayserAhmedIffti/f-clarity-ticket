@@ -39,12 +39,26 @@ const Home = ({ setIsAuthenticated }) => {
             console.error('Error Status:', err.response?.status || 'undefined');
         }
     };
+    
+    const handleMyTicketClick = () => {
+        navigate('/my-ticket-create');
+    };
 
     return (
         <div className="min-h-screen bg-gray-100">
             <nav className="bg-gradient-to-r from-green-600 to-black-600 p-4 shadow-md">
                 <div className="max-w-7xl mx-auto flex justify-between items-center">
+                  {/* Group the h1 elements in a flex container */}
+                <div className="flex space-x-6">
                     <h1 className="text-white text-xl font-bold">ClarityTicket</h1>
+                    <button
+                            onClick={handleMyTicketClick}
+                            className="text-white text-xl font-bold hover:text-gray-200 transition-colors duration-200"
+                        >
+                            My Ticket
+                    </button>
+                </div>
+                {/* Logout button on the right */}
                     <button
                         onClick={handleLogout}
                         className="text-white bg-orange-400 hover:bg-red-600 px-4 py-2 rounded-md font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-400"
